@@ -2,7 +2,7 @@
 > Knex Empresa Júnior de Computação
 
 ## Avaliação
-Este teste é uma oportunidade para você demonstrar seus conhecimentos em desenvolvimento frontend, boas práticas de programação e implementação de formulários complexos. Avaliaremos diversos aspectos do seu código e da implementação da solução.
+Este teste é uma oportunidade para você demonstrar seus conhecimentos em desenvolvimento frontend, boas práticas de programação e implementação de formulários complexos. Avaliaremos diversos aspectos do seu código e da implementação da solução. Lembrando que não é necessário concluir tudo do projeto, fazer o que conseguir!
 
 ## Instruções
 - Desenvolva a solução utilizando React
