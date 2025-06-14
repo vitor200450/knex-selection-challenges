@@ -1,109 +1,95 @@
 # Teste Técnico - Backend
+
 > Knex Empresa Júnior de Computação
 
 ## Avaliação
+
 Este teste é uma oportunidade para você demonstrar seus conhecimentos em desenvolvimento backend, modelagem de dados, e boas práticas de programação. Avaliaremos diversos aspectos do seu código e da implementação da solução. Lembrando que não é necessário concluir tudo do projeto, fazer o que conseguir!
 
 ## Instruções
+
 - Desenvolva a solução utilizando a linguagem e framework de sua preferência
 - Utilize qualquer ORM de sua escolha
 - Você pode utilizar quaisquer bibliotecas externas que considerar necessárias
 - Adicione um arquivo README.md com instruções claras de como executar sua aplicação
 - O desenvolvimento deve ser individual
 
-## Desafio
-Desenvolver uma API REST para gerenciar doações aos cães que habitam o campus universitário. O sistema deve gerenciar doadores, doações e pagamentos via PIX, mantendo um histórico das transações.
+## Descrição do desafio
 
-### A solução deve focar em três pontos principais:
-1) CRUD completo de doações e doadores
-2) Validações robustas e tratamento de erros
-3) Integração com sistema PIX (mock) e gestão de status de pagamentos
+A Cota para o Exercício da Atividade Parlamentar (CEAP) custeia as despesas do mandato de deputados, como passagens aéreas e contas de celular. Através do portal da transparência, temos acesso a essas despesas e podemos analisar como e onde os políticos estão gastando.
+
+Seu desafio é criar uma API para gerenciar e consultar essas despesas.
+
+- Fonte de Dados: Utilize a API de Dados Abertos da Câmara dos Deputados para obter as despesas referentes ao ano de 2025 em formato CSV.
+
+  - [Link da API (buscar em "Dados Abertos - CSV")](https://dadosabertos.camara.leg.br/swagger/api.html?tab=staticfile#staticfile).
+  - [Documentação com explicações dos campos](https://dadosabertos.camara.leg.br/howtouse/2023-12-26-dados-ceap.html).
+
+- Filtragem dos dados:
+  - Ignore linhas que não contenham valor no campo `sgUF` (Sigla da Unidade Federativa).
+  - Para fins de cálculos de despesa, considere o campo `vlrLiquido`. Este é o valor que de fato foi debitado da cota do candidato.
+
+## Requisitos Obrigatórios
+
+Sua solução deve obrigatoriamente atender aos seguintes requisitos:
+
+### 1. Implementação de uma API RESTful
+
+- Crie uma **API REST** que responda a requisições HTTP e manipule os dados das despesas e deputados.
+- Os endpoints devem seguir os princípios RESTful (uso de verbos HTTP, status codes apropriados, URLs descritivas).
+
+### 2. Organização dos Dados no Banco de Dados (Endpoint de Upload/Processamento)
+
+- **Endpoint de Upload/Processamento:** Crie um endpoint (por exemplo, `POST /upload-ceap` ou `POST /processar-csv`) que seja responsável por:
+  - Receber ou processar o arquivo CSV baixado da fonte de dados (pode ser via upload, ou a API pode baixá-lo internamente).
+  - **Ler e parsear** o conteúdo do CSV.
+  - **Extrair e organizar** os dados nas tabelas `Deputado` e `Despesa` no banco de dados, conforme o modelo de entidades abaixo.
+  - Garanta que a **importação seja idempotente** para evitar duplicidade de dados em caso de múltiplas chamadas ao endpoint. Considere formas de verificar se um deputado já existe antes de inseri-lo, por exemplo, usando o CPF ou um identificador único.
+
+### 3. Listagem de Deputados por Estado
+
+- Crie um endpoint (ex: `GET /deputados?uf=SP`) que permita **listar todos os deputados** filtrando por sua **Unidade Federativa (UF)**.
+- O endpoint deve retornar os dados básicos de cada deputado (id, nome, uf, cpf, partido).
+
+### 4. Endpoint de Relatório (Somatório de Despesas)
+
+- Desenvolva um endpoint de relatório que apresente o **somatório das despesas**.
+- **Relatório Específico por Deputado:** Deve ser possível consultar o somatório das despesas de **um deputado específico** (ex: `GET /relatorios/deputados/:id/total-despesas`).
+- **Relatório Geral:** Deve ser possível consultar o **somatório total de despesas de todos os deputados** combinados (ex: `GET /relatorios/total-despesas`).
+
+### 5. Listagem de Despesas
+
+- Crie um endpoint (ex: `GET /despesas` ou `GET /deputados/:id/despesas`) que permita **listar as despesas**, exibindo os seguintes campos de forma clara:
+  - `dataEmissao` (Data da emissão do documento fiscal da despesa)
+  - `txtFornecedor` (Nome do fornecedor ou estabelecimento)
+  - `vlrLiquido` (Valor monetário líquido da despesa)
+  - `urlDocumento` (URL do documento fiscal ou comprovante da despesa, se disponível)
+- Considere a possibilidade de **paginação e filtros** (por exemplo, por data, por fornecedor) para este endpoint, se houver tempo.
 
 ### Entidades e Relacionamentos
 
-**Doador**
-- id
-- nome
-- email
-- telefone
-- data_cadastro
-- Relacionamento: Um doador pode ter várias doações
+Seu banco de dados deve conter as seguintes entidades e seus respectivos relacionamentos:
 
-**Doação**
-- id
-- valor
-- mensagem
-- status (pendente/confirmada/cancelada)
-- data_criacao
-- data_confirmacao
-- Relacionamento: Pertence a um doador
-- Relacionamento: Possui um pagamento
+**Deputado**
 
-**Pagamento**
-- id
-- chave_pix
-- qr_code
-- status
-- data_criacao
-- data_expiracao
-- data_confirmacao
-- Relacionamento: Pertence a uma doação
+- `id` (Chave primária, único para cada deputado)
+- `nome` (Nome completo do deputado)
+- `uf` (Sigla da Unidade Federativa do deputado)
+- `cpf` (CPF do deputado, se disponível e relevante para a identificação única)
+- `partido` (Partido político do deputado)
+- **Relacionamento:** Um `Deputado` pode ter **várias `Despesas`**.
 
-### Requisitos de Validação
+**Despesa**
 
-**Doador**
-- Nome: obrigatório, mínimo 3 caracteres
-- Email: obrigatório, formato válido, único no sistema
-- Telefone: opcional, formato brasileiro válido se fornecido
-
-**Doação**
-- Valor: obrigatório, mínimo R$ 5,00, máximo R$ 10.000,00
-- Status: transições válidas conforme regra de negócio
-- Mensagem: opcional, máximo 200 caracteres
-
-**Pagamento**
-- Timeout de 15 minutos para pagamento
-- Validação de status conforme regras de negócio
-- Não permitir confirmar pagamentos expirados
-
-### Casos de uso
-
-## Gestão de doadores
-- Deve ser possível cadastrar um novo doador no sistema
-- Deve ser possível consultar informações de um doador específico
-- Deve ser possível atualizar os dados cadastrais de um doador
-- Deve ser possível visualizar o histórico de doações de um doador
-
-## Gestão de doações
-- Deve ser possível um doador realizar uma ou mais doações
-- Deve ser possível consultar o status de uma doação específica
-- Deve ser possível filtrar doações por período, valor ou status
-- Deve ser possível cancelar uma doação pendente
-- Deve ser possível configurar doações recorrentes mensais
-- Deve ser possível adicionar uma mensagem personalizada à doação
-
-## Gestão de Pagamentos
-
-- Deve ser possível gerar um QR Code PIX para uma doação
-- Deve ser possível confirmar o recebimento de um pagamento PIX
-- Deve ser possível consultar o status de um pagamento
-- Deve ser possível gerar nova chave PIX quando o pagamento expirar
-- Sistema deve notificar o doador após confirmação do pagamento
-
-### Regras de Negócio
-- Doação só pode ser cancelada se estiver pendente
-- Pagamento confirmado não pode ser alterado
-- Pagamento expirado deve gerar nova chave PIX
-- Sistema deve registrar todas as mudanças de status
-
-## O que não pode faltar neste projeto?
-- Uso de Typescript
-- Código limpo e semântico
-- Uso de Eslint e Prettier
-- Tratamento de erros padronizado
-- Validação de dados
+- `id` (Chave primária, único para cada despesa)
+- `dataEmissao` (Data em que a despesa foi emitida)
+- `fornecedor` (Nome do estabelecimento ou fornecedor da despesa)
+- `valorLiquido` (Valor monetário líquido da despesa)
+- `urlDocumento` (URL do documento fiscal ou comprovante da despesa, se disponível)
+- **Relacionamento:** Cada `Despesa` **pertence a um `Deputado`** (chave estrangeira referenciando o `id` do Deputado).
 
 ## O que pode te destacar?
+
 - Docker
 - Deploy da aplicação
 - S.O.L.I.D.
@@ -113,11 +99,14 @@ Desenvolver uma API REST para gerenciar doações aos cães que habitam o campus
 - Documentação detalhada
 
 ## Entrega
+
 - O código deve ser disponibilizado em um repositório público no GitHub
 - Inclua instruções detalhadas de como rodar o projeto
 
 ## Prazo
+
 O prazo para entrega está especificado no edital do processo seletivo.
 
 ## Contato
+
 Em caso de dúvidas, utilize o canal de comunicação informado no início do processo seletivo.
