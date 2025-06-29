@@ -11,21 +11,29 @@ import CreatePost from './CreatePost';
 import * as useCreatePostHook from '@/hooks/useCreatePost';
 import { type ApiPost } from '@/hooks/usePosts';
 
-type MockUseMutationResult = Pick<
-    UseMutationResult<
-        ApiPost,
-        Error,
-        { title: string; body: string; userId: number }
-    >,
-    'mutate' | 'isPending'
->;
-
 // Mock do hook useCreatePost
 const mockMutate = vi.fn();
 vi.spyOn(useCreatePostHook, 'useCreatePost').mockReturnValue({
     mutate: mockMutate,
     isPending: false,
-} as MockUseMutationResult);
+    isSuccess: false,
+    isError: false,
+    data: undefined,
+    error: null,
+    status: 'idle',
+    variables: undefined,
+    reset: vi.fn(),
+    mutateAsync: vi.fn(),
+    context: undefined,
+    failureCount: 0,
+    failureReason: null,
+    isPaused: false,
+    submittedAt: 0,
+} as UseMutationResult<
+    ApiPost,
+    Error,
+    { title: string; body: string; userId: number }
+>);
 
 // Helper para renderizar com o QueryClientProvider
 const queryClient = new QueryClient();
