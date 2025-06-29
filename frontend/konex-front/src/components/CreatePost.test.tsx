@@ -1,13 +1,22 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+    QueryClient,
+    QueryClientProvider,
+    type UseMutationResult,
+} from '@tanstack/react-query';
 
 import CreatePost from './CreatePost';
 import * as useCreatePostHook from '@/hooks/useCreatePost';
+import { type ApiPost } from '@/hooks/usePosts';
 
 type MockUseMutationResult = Pick<
-    UseMutationResult<ApiPost, Error, { title: string; body: string }>,
+    UseMutationResult<
+        ApiPost,
+        Error,
+        { title: string; body: string; userId: number }
+    >,
     'mutate' | 'isPending'
 >;
 

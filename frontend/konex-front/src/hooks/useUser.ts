@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { fetchUser } from '@/lib/api';
+import { useEffect } from 'react';
 
 const USER_TOKEN_COOKIE = 'user_token';
 
@@ -32,17 +33,20 @@ export const useUser = () => {
         return fetchUser(seed);
     };
 
-    return useQuery({
+    const queryResult = useQuery({
         queryKey: ['user'],
         queryFn: queryFn,
         staleTime: Infinity,
         gcTime: 1000 * 60 * 60 * 24,
-        onSuccess: (data) => {
-            if (data?.login?.sha256) {
-                Cookies.set(USER_TOKEN_COOKIE, data.login.sha256, {
-                    expires: 7,
-                });
-            }
-        },
     });
+
+    useEffect(() => {
+        if (queryResult.data?.login?.sha256) {
+            Cookies.set(USER_TOKEN_COOKIE, queryResult.data.login.sha256, {
+                expires: 7,
+            });
+        }
+    }, [queryResult.data]);
+
+    return queryResult;
 };

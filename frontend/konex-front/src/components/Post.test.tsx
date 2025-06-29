@@ -1,16 +1,19 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import Post from './Post';
 
 describe('Componente Post', () => {
     const mockPostProps = {
         authorName: 'João Ninguém',
         authorAvatarUrl: 'http://example.com/avatar.png',
+        authorLocation: 'São Paulo, SP',
         postedAt: 'Há 5 minutos',
         title: 'Título do Post de Teste',
         content: 'Este é o conteúdo do post que estamos testando.',
         likeCount: 123,
         commentCount: 45,
+        isLiked: false,
+        onLike: vi.fn(),
     };
 
     it('deve renderizar os dados do post corretamente', () => {
