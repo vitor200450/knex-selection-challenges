@@ -21,6 +21,7 @@ vi.spyOn(useCreatePostHook, 'useCreatePost').mockReturnValue({
     data: undefined,
     error: null,
     status: 'idle',
+    isIdle: true,
     variables: undefined,
     reset: vi.fn(),
     mutateAsync: vi.fn(),
