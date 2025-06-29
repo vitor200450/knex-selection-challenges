@@ -11,7 +11,7 @@ Projeto desenvolvido como parte do processo seletivo para a vaga de estágio em 
 
 Você pode acessar a aplicação ao vivo através do seguinte link:
 
-**[https://seu-link-de-deploy.vercel.app/](https://seu-link-de-deploy.vercel.app/)**
+**[https://konex-eight.vercel.app/](https://konex-eight.vercel.app/)**
 
 ---
 

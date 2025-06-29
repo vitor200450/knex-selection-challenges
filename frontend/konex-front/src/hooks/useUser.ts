@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { fetchUser } from '@/lib/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const USER_TOKEN_COOKIE = 'user_token';
 
@@ -28,25 +28,22 @@ export interface RandomUser {
 }
 
 export const useUser = () => {
-    const queryFn = () => {
-        const seed = Cookies.get(USER_TOKEN_COOKIE);
-        return fetchUser(seed);
-    };
+    const [seed, setSeed] = useState(() => Cookies.get(USER_TOKEN_COOKIE));
 
     const queryResult = useQuery({
-        queryKey: ['user'],
-        queryFn: queryFn,
+        queryKey: ['user', seed],
+        queryFn: () => fetchUser(seed),
         staleTime: Infinity,
         gcTime: 1000 * 60 * 60 * 24,
     });
 
     useEffect(() => {
-        if (queryResult.data?.login?.sha256) {
-            Cookies.set(USER_TOKEN_COOKIE, queryResult.data.login.sha256, {
-                expires: 7,
-            });
+        if (queryResult.isSuccess && queryResult.data && !seed) {
+            const newSeed = queryResult.data.login.sha256;
+            Cookies.set(USER_TOKEN_COOKIE, newSeed, { expires: 7 });
+            setSeed(newSeed);
         }
-    }, [queryResult.data]);
+    }, [queryResult.isSuccess, queryResult.data, seed]);
 
     return queryResult;
 };
