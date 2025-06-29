@@ -9,10 +9,14 @@ export interface ApiUser {
     picture: {
         thumbnail: string;
     };
+    location: {
+        city: string;
+        state: string;
+    };
 }
 
 export const useUsers = () => {
-    return useQuery<ApiUser[]>({
+    return useQuery({
         queryKey: ['users'],
         queryFn: fetchUsers,
     });

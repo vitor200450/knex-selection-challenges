@@ -17,10 +17,16 @@ export const usePosts = () => {
             localStorage.getItem(USER_POSTS_KEY) || '[]'
         );
 
-        return [...localPosts, ...apiPosts];
+        // Simulação de variação de autores - O JSON Placeholder usa o mesmo usuário para todos os posts
+        const diversifiedApiPosts = apiPosts.map((post, index) => ({
+            ...post,
+            userId: (index % 10) + 1, // Atribui userId de 1 a 10 ciclicamente
+        }));
+
+        return [...localPosts, ...diversifiedApiPosts];
     };
 
-    return useQuery<ApiPost[]>({
+    return useQuery({
         queryKey: ['posts'],
         queryFn: queryFn,
     });

@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,6 +71,10 @@ function CreatePost() {
                     <DialogTitle className="text-3xl font-bold text-[#000000] text-center border-b border-[#eaeaea] pb-4">
                         Insira os detalhes do seu post
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Formulário para criar um novo post com título e
+                        conteúdo.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form

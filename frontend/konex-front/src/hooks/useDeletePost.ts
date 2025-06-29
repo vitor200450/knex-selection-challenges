@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deletePost } from '@/lib/api';
 import { type ApiPost } from './usePosts';
+import { useToast } from './use-toast';
 
 const USER_POSTS_KEY = 'user_posts';
 
 export const useDeletePost = () => {
     const queryClient = useQueryClient();
+    const { toast } = useToast();
 
     const mutationFn = async (postId: number) => {
         if (postId > 100) {
@@ -38,6 +40,18 @@ export const useDeletePost = () => {
                     return oldData.filter((post) => post.id !== postId);
                 }
             );
+
+            toast({
+                title: 'Sucesso!',
+                description: 'Seu post foi removido do feed.',
+            });
+        },
+        onError: () => {
+            toast({
+                variant: 'destructive',
+                title: 'Erro!',
+                description: 'Não foi possível remover o seu post.',
+            });
         },
     });
 };

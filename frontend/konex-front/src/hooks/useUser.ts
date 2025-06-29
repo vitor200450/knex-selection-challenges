@@ -4,25 +4,25 @@ import { fetchUser } from '@/lib/api';
 
 const USER_TOKEN_COOKIE = 'user_token';
 
-interface RandomUser {
+export interface RandomUser {
     name: {
         first: string;
         last: string;
     };
-    email: string;
-    login: {
-        sha256: string;
-    };
-    dob: {
-        age: number;
-    };
     picture: {
         large: string;
     };
-    phone: string;
+    email: string;
+    dob: {
+        age: number;
+    };
     location: {
         city: string;
         state: string;
+    };
+    phone: string;
+    login: {
+        sha256: string;
     };
 }
 
@@ -32,7 +32,7 @@ export const useUser = () => {
         return fetchUser(seed);
     };
 
-    return useQuery<RandomUser>({
+    return useQuery({
         queryKey: ['user'],
         queryFn: queryFn,
         staleTime: Infinity,
